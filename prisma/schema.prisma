@@ -12,3 +12,15 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String?
+  balance        Float     @default(1000.0)
+  isAdmin        Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastLogin      DateTime? // Tracks the last login time
+  isVerified     Boolean   @default(false) // Indicates if the user has verified their email
+  referralSource String?
+}
