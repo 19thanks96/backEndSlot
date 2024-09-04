@@ -115,97 +115,64 @@ client.connect(function (err) {
     });
 });
 
-function getLongestChain(arr, min) {
-    let main = {}; // Главный претендент на самый длинный
-    let temp = {}; // Временное хранилище текущей цепочки
+const line1For5Rows = [1, 1, 1, 1, 1];
+const line2For5Rows = [0, 0, 0, 0, 0];
+const line3For5Rows = [2, 2, 2, 2, 2];
+const line4For5Rows = [0, 1, 2, 1, 0];
+const line5For5Rows = [2, 1, 0, 1, 2];
+const line6For5Rows = [1, 0, 0, 0, 1];
+const line7For5Rows = [1, 2, 2, 2, 1];
+const line8For5Rows = [0, 0, 1, 2, 2];
+const line9For5Rows = [2, 2, 1, 0, 0];
+const line10For5Rows= [1, 2, 1, 0, 1];
+const line11For5Rows= [1, 0, 1, 2, 1];
+const line12For5Rows= [0, 1, 1, 1, 0];
+const line13For5Rows= [2, 1, 1, 1, 2];
+const line14For5Rows= [0, 1, 0, 1, 0];
+const line15For5Rows= [2, 1, 2, 1, 2];
+const line16For5Rows= [1, 1, 0, 1, 1];
+const line17For5Rows= [1, 1, 2, 1, 1];
+const line18For5Rows= [0, 0, 2, 0, 0];
+const line19For5Rows= [2, 2, 0, 2, 2];
+const line20For5Rows= [0, 2, 2, 2, 0];
+const line21For5Rows= [2, 0, 0, 0, 2];
+const line22For5Rows= [1, 2, 0, 2, 1];
+const line23For5Rows= [1, 0, 2, 2, 1];
+const line24For5Rows= [0, 2, 0, 2, 0];
+const line25For5Rows= [2, 0, 2, 0, 2];
 
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] === temp.name) { // Повторяющийся элемент
-            temp.count++;
-            if(temp.count === arr.length) {//Если последний елемент повторился
-                main = cloneObject(temp);
-            }
-        } else { // Наткнулись на новый элемент
-            if (temp.count > (main.count || 0)) { // Надо ли переписать основной объект
-                main = cloneObject(temp);
-            }
-            // Создаем новый временный объект, с данными уже текущего элемента.
-            temp = ChainData(arr[i], i);
-            if ( i >= 1) {
-                break
-            }
-        }
-    }
-    if (main.count >= min) {
-        return main;
-    } else {
-        return {}
-    }
-}
+const allLines = [
+    line1For5Rows, line2For5Rows, line3For5Rows, line4For5Rows, line5For5Rows,
+    line6For5Rows, line7For5Rows, line8For5Rows, line9For5Rows, line10For5Rows,
+    line11For5Rows, line12For5Rows, line13For5Rows, line14For5Rows, line15For5Rows,
+    line16For5Rows, line17For5Rows, line18For5Rows, line19For5Rows, line20For5Rows,
+    line21For5Rows, line22For5Rows, line23For5Rows, line24For5Rows, line25For5Rows,
+];
 
-function ChainData(name, index) {
-    return {
-        name: name,
-        count: 1,
-        index: index,
-    }
-}
-
-function cloneObject(obj) {
-    let x = {};
-    for (let key in obj) {
-        x[key] = obj[key];
-    }
-    return x;
-}
-
-function checkWin(array, rows, lines) {
-    const line1For5Rows = [1, 1, 1, 1, 1];
-    const line2For5Rows = [0, 0, 0, 0, 0];
-    const line3For5Rows = [2, 2, 2, 2, 2];
-    const line4For5Rows = [0, 1, 2, 1, 0];
-    const line5For5Rows = [2, 1, 0, 1, 2];
-    const line6For5Rows = [1, 0, 0, 0, 1];
-    const line7For5Rows = [1, 2, 2, 2, 1];
-    const line8For5Rows = [0, 0, 1, 2, 2];
-    const line9For5Rows = [2, 2, 1, 0, 0];
-    const line10For5Rows= [1, 2, 1, 0, 1];
-    const line11For5Rows= [1, 0, 1, 2, 1];
-    const line12For5Rows= [0, 1, 1, 1, 0];
-    const line13For5Rows= [2, 1, 1, 1, 2];
-    const line14For5Rows= [0, 1, 0, 1, 0];
-    const line15For5Rows= [2, 1, 2, 1, 2];
-    const line16For5Rows= [1, 1, 0, 1, 1];
-    const line17For5Rows= [1, 1, 2, 1, 1];
-    const line18For5Rows= [0, 0, 2, 0, 0];
-    const line19For5Rows= [2, 2, 0, 2, 2];
-    const line20For5Rows= [0, 2, 2, 2, 0];
-    const line21For5Rows= [2, 0, 0, 0, 2];
-    const line22For5Rows= [1, 2, 0, 2, 1];
-    const line23For5Rows= [1, 0, 2, 2, 1];
-    const line24For5Rows= [0, 2, 0, 2, 0];
-    const line25For5Rows= [2, 0, 2, 0, 2];
-
-
-    const allLines = [
-        line1For5Rows, line2For5Rows, line3For5Rows, line4For5Rows, line5For5Rows,
-        line6For5Rows, line7For5Rows, line8For5Rows, line9For5Rows, line10For5Rows,
-        line11For5Rows, line12For5Rows, line13For5Rows, line14For5Rows, line15For5Rows,
-        line16For5Rows, line17For5Rows, line18For5Rows, line19For5Rows, line20For5Rows,
-        line21For5Rows, line22For5Rows, line23For5Rows, line24For5Rows, line25For5Rows,
-    ];
+function checkWin(array, rows, minElementsInLine) {
     let combinations = []
-
 
     allLines.forEach((lineOfAllLines, index) => {
         let elements = []
+        let main = {
+            name: 0,
+            count: 0,
+        };
         for (let row = 0; row < rows; row++) {
-            elements.push(array[row][lineOfAllLines[row]])
-            if (row === rows - 1) {
-                console.log(elements)
-                console.log(getLongestChain(elements, 3))
-                combinations.push(getLongestChain(elements, 3));
+            if (row === 0) {
+                main.name = array[row][lineOfAllLines[row]];
+                main.count += 1;
+            }  else {
+                if (main.name !== array[row][lineOfAllLines[row]]) {
+                    break
+                } else {
+                    main.count += 1;
+                }
             }
+        }
+        if(main.count >=  minElementsInLine) {
+            main.indexLine = index
+            combinations.push(main);
         }
     })
     return combinations;
