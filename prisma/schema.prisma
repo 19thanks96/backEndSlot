@@ -14,13 +14,26 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  name           String?
-  balance        Float     @default(1000.0)
-  isAdmin        Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  lastLogin      DateTime? // Tracks the last login time
-  isVerified     Boolean   @default(false) // Indicates if the user has verified their email
-  referralSource String?
+  id                 Int           @id @default(autoincrement())
+  name               String?
+  balance            Float         @default(1000.0)
+  isAdmin            Boolean       @default(false)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  lastLogin          DateTime? // Tracks the last login time
+  isVerified         Boolean       @default(false) // Indicates if the user has verified their email
+  referralSource     String?
+  currentReels       CurrentReels?
+  currentReelsUserId Int?
+}
+
+model CurrentReels {
+  id       Int    @id @default(autoincrement())
+  allReels String
+  name     Int
+  count    Int    @default(0)
+  line     String
+  bill     Float  @default(0)
+  userId   Int    @unique
+  user     User   @relation(fields: [userId], references: [id])
 }
