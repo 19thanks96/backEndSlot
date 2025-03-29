@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon server.js"
+    "start-redis": "docker start redis-container || docker run --name redis-container -p 6379:6379 -d redis",
+    "stop-redis": "docker stop redis-container",
+    "start": "npm run start-redis && npx nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +16,8 @@
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "@prisma/client": "^5.22.0",
+    "crypto-js": "^4.2.0",
+    "ioredis": "^5.6.0",
     "pg": "^8.12.0"
   }
 }

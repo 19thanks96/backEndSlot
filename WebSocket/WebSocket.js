@@ -1,11 +1,10 @@
 const WebSocket = require('ws');
 const {handleIdentify, handleBuySpin, handleGetReel} = require('../utils/helper.js');
-const {Prisma: PrismaInstance} = require('../Prisma/Prisma.js');
+const {Prisma: PrismaInstance} = require('../api/Prisma.js');
+const {betLevel} = require("../utils/helper");
 
-// const wss = new WebSocket.Server({port: port});
 
 class WebBroker {
-    port;
     wss;
     prisma
 
@@ -19,9 +18,9 @@ class WebBroker {
         return WebBroker.instance;
     }
 
-    connect = async (port) => {
-        this.port = port;
-        this.wss = new WebSocket.Server({port: this.port});
+    connect = async () => {
+
+        this.wss = new WebSocket.Server({port: process.env.WEBSOCKET_PORT});
         this.prisma = PrismaInstance.getInstance();
 
         this.wss.on('connection', async function connection(ws) {
@@ -43,11 +42,7 @@ class WebBroker {
             // Обрабатываем сообщения от клиента
             ws.on('message', async function incoming(message) {
                 const parsedMessage = message.toString();
-                // checkWin([[0, 1, 2, 3, 0, 1],
-                //     [0, 1, 2, 3, 0, 2],
-                //     [0, 1, 2, 3, 0, 3],
-                //     [0, 1, 2, 3, 0, 0],
-                //     [0, 1, 2, 3, 0, 1]], 5, 3)
+
 
                 // Если сообщение в формате JSON, можно его распарсить
                 try {
@@ -55,19 +50,35 @@ class WebBroker {
 
                     if (data.type === 'identify') {
                         const handleUserLogin = await handleIdentify(data)
-                            console.log('handleUserLogin', handleUserLogin);
+                            console.log('handleUserLogin', '');
                         if (handleUserLogin) {
                             ws.send(JSON.stringify({data: handleUserLogin, type: 'identify'}));
                         }
                     }
                     if (data.type === 'buySpin') {
-                        const handler = await handleBuySpin(data)
-                        ws.send(JSON.stringify({data: handler.balance, type: 'buySpin'}));
-                        const generatedArray = createNewReelsSymbols(3, 5, 4)
+                        console.log('buySpin', data)
+                        const id = data.message.id
+                        if (!data?.message?.betLevel) {
+                            console.error(
+                                'getReels bet is empty', data?.message)
+                            return
+                        }
+                        const bet = betLevel[data?.message?.betLevel];
+                        const  newSpin = await handleBuySpin(id, bet)
+                        ws.send(JSON.stringify({data: newSpin, type: 'boughtSpin'}));
                     }
-                    if (data.type === 'getReel') {
-                        const handler = await handleGetReel(data)
-
+                    if (data.type === 'getReels') {
+                        console.log('getReels message', data.message)
+                        const id = data.message.id
+                        // if (!data?.message?.bet || !data?.message?.betLevel) {
+                        //     console.error(
+                        //         'getReels bet is empty', data?.message)
+                        //     return
+                        // }
+                        const bet = data?.message?.bet;
+                        const handler = await handleGetReel(id, bet)
+                        // console.log('getReels bet !!!!!', {data: handler, type: 'reels'})
+                        ws.send(JSON.stringify({data: handler, type: 'reels'}));
                     }
                     console.log('Получено сообщение:', data);
                 } catch (e) {
@@ -84,7 +95,7 @@ class WebBroker {
                 console.log('Клиент отключился');
             });
         });
-        console.log(`WebSocket сервер запущен на порту ${this.port}`);
+        console.log(`WebSocket сервер запущен на порту ${process.env.WEBSOCKET_PORT}`);
     }
 }
 

@@ -25,15 +25,27 @@ model User {
   referralSource     String?
   currentReels       CurrentReels?
   currentReelsUserId Int?
+  seed               Seed?
+  currentSeedUserId  Int?
 }
 
 model CurrentReels {
   id       Int    @id @default(autoincrement())
   allReels String
-  name     Int
+  bet      Int    @default(10)
   count    Int    @default(0)
   line     String
   bill     Float  @default(0)
+  userId   Int    @unique
+  user     User   @relation(fields: [userId], references: [id])
+  nonce    Int     @default(1)
+}
+
+model Seed {
+  id       Int    @id @default(autoincrement())
+  clientSeed String @default("000000")
+  previousSeeds String //'000000'
+
   userId   Int    @unique
   user     User   @relation(fields: [userId], references: [id])
 }
