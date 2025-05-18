@@ -5,7 +5,7 @@
   "scripts": {
     "start-redis": "docker start redis-container || docker run --name redis-container -p 6379:6379 -d redis",
     "stop-redis": "docker stop redis-container",
-    "start": "npm run start-redis && npx nodemon server.js"
+    "start": "npm run start-redis && npx nodemon server.js --trace-warnings server.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,5 +19,6 @@
     "crypto-js": "^4.2.0",
     "ioredis": "^5.6.0",
     "pg": "^8.12.0"
-  }
+  },
+  "type": "module"
 }

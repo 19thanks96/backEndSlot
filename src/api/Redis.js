@@ -1,6 +1,6 @@
-const Redis = require('ioredis');
+import  Redis  from 'ioredis';
 
-class RedisClient {
+export class RedisClient {
     static instance;
     client;
 
@@ -35,10 +35,32 @@ class RedisClient {
     }
 
 
+    setData(data, prefix) {
+        if (!!data) {
+            if( typeof data === "object" && !Array.isArray(data)) {
+                Object.keys(data).forEach((key) => {
+                    this.client.set(`${prefix}-${key}`, JSON.stringify(data[key]));
+                });
+            } else {
+                this.client.set(prefix, JSON.stringify(data));
+            }
+        } else {
+            console.log(`${prefix} is empty or invalid, see:`, data)
+        }
+    }
+
+    setUserBalance(balance) {
+        if (!!balance) {
+                this.client.set(`user-balance`, JSON.stringify(balance));
+        } else {
+            console.log('balance is empty, see:', balance)
+        }
+    }
+
+
     disconnect() {
         this.client.disconnect();
         console.log('Соединение с Redis закрыто.');
     }
 }
 
-module.exports = RedisClient;

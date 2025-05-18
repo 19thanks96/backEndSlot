@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "CurrentReels" ALTER COLUMN "count" DROP NOT NULL,
+ALTER COLUMN "bill" DROP NOT NULL;

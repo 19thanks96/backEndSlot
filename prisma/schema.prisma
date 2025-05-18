@@ -32,10 +32,11 @@ model User {
 model CurrentReels {
   id       Int    @id @default(autoincrement())
   allReels String
+  createdAt          DateTime      @default(now())
   bet      Int    @default(10)
-  count    Int    @default(0)
+  count    Int?    @default(0)
   line     String
-  bill     Float  @default(0)
+  bill     Float?  @default(0)
   userId   Int    @unique
   user     User   @relation(fields: [userId], references: [id])
   nonce    Int     @default(1)

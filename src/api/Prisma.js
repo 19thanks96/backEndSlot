@@ -1,34 +1,62 @@
-const { neon } = require("@neondatabase/serverless");
-const http = require("http");
-const {PrismaClient} = require("@prisma/client");
-
- class Prisma {
-     client
-     seed = null;
+import { neon } from "@neondatabase/serverless";
+import http from "http";
+import { PrismaClient } from "@prisma/client";
 
 
-    static getInstance() {
+export class Prisma {
+    instance = null; // Экземпляр Prisma
+    client = null;
+    seed = null;
+
+     constructor() {
+        if (Prisma.instance) {
+            throw new Error('Используйте Prisma.getInstance() для доступа к экземпляру');
+        }
+
+        this.client = new PrismaClient();
+        console.log('Новое подключение to prisma');
+        const sql = neon(process.env.DATABASE_URL);
+
+        const requestHandler = async (req, res) => {
+            const result = await sql`SELECT version()`;
+            const {version} = result[0];
+            res.writeHead(200, {"Content-Type": "text/plain"});
+            res.end(version);
+        };
+
+        if (!this.serverRunning) {
+                const server = http.createServer(requestHandler);
+
+                // Запуск сервера с переключением на доступный порт
+                server.listen(process.env.PRISMA_PORT, () => {
+                    console.log(`Prisma сервер запущен на порту ${process.env.PRISMA_PORT}`);
+                    this.serverRunning = true;
+                });
+
+                server.on('error', (error) => {
+                    if (error.code === 'EADDRINUSE') {
+                        console.error(
+                            `Порт ${process.env.PRISMA_PORT} уже используется.`
+                        );
+                        process.env.PRISMA_PORT = parseInt(process.env.PRISMA_PORT, 10) + 1; // Переход на следующий порт
+                        server.listen(process.env.PRISMA_PORT, () => {
+                            console.log(`Prisma сервер запущен на новом порту ${process.env.PRISMA_PORT}`);
+                        });
+
+                    } else {
+                        console.error('Ошибка сервера:', error);
+                    }
+                });
+        }
+
+    }
+
+
+      static getInstance() {
         if (!Prisma.instance) {
             Prisma.instance = new Prisma();
         }
         return Prisma.instance;
-    }
-
-      async connect (){
-         this.client = new PrismaClient();
-         console.log('Новое подключение to prisma');
-         const sql = neon(process.env.DATABASE_URL);
-
-         const requestHandler = async (req, res) => {
-             const result = await sql`SELECT version()`;
-             const { version } = result[0];
-             res.writeHead(200, { "Content-Type": "text/plain" });
-             res.end(version);
-         };
-
-         http.createServer(requestHandler).listen(process.env.PRISMA_PORT, () => {
-             console.log(`Prisma сервер запущен на порту ${process.env.PRISMA_PORT}`);
-         });
     }
 
     getSeed = async () => {
@@ -180,6 +208,14 @@ const {PrismaClient} = require("@prisma/client");
              },
          });
      }
-}
 
-module.exports = { Prisma };
+    async disconnect() {
+        if (this.prisma) {
+            console.log('Отключение Prisma...');
+            await this.prisma.$disconnect();
+            this.prisma = null; // Убираем ссылку после отключения
+            this.serverRunning = false; // Сбрасываем серверный флаг
+        }
+    }
+
+}
