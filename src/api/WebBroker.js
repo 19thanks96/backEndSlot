@@ -1,12 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
-
 import {handleBuySpin, handleGetReel} from '../utils/helper.js';
-// const {Prisma: PrismaInstance} = require('../src/api/Prisma.js');
-// const {betLevel} = require("../src/utils/helper");
 import  {UserController}  from "../infrastructure/controllers/user.controller.js";
-import  {ReelsController}  from "../infrastructure/controllers/reels.controller.js";
-import  {SeedController}  from "../infrastructure/controllers/seed.controller.js";
-
 
 export class WebBroker {
     wss;
@@ -30,20 +24,17 @@ export class WebBroker {
 
         this.wss = new WebSocketServer({ port: process.env.WEBSOCKET_PORT });
 
-        // this.prisma = PrismaInstance.getInstance();
-
         this.wss.on('connection', async function connection(ws) {
             console.log('new connection');
 
             ws.send(JSON.stringify({data: 'handShake'}));
 
-            // Обрабатываем сообщения от клиента
             ws.on('message', async function incoming(message) {
                 const parsedMessage = message.toString();
 
-                // Если сообщение в формате JSON, можно его распарсить
+
                     const data = JSON.parse(parsedMessage);
-                    console.log('Получено сообщение:', data);
+                    console.log('Get message', data);
                     if (data.type === 'identify') {
                         let user;
                         if (data?.message.isNewUser.id) {
@@ -74,16 +65,16 @@ export class WebBroker {
 
 
                 // Отправляем сообщение обратно клиенту
-                ws.send(JSON.stringify({data: `Вы сказали: ${message}`}));
+                ws.send(JSON.stringify({data: `U say: ${message}`}));
             });
 
 
             // Обрабатываем отключение клиента
             ws.on('close', function () {
-                console.log('Клиент отключился');
+                console.log('client off');
             });
         });
-        console.log(`WebSocket сервер запущен на порту ${process.env.WEBSOCKET_PORT}`);
+        console.log(`Port in use ${process.env.WEBSOCKET_PORT}`);
     }
 
     disconnect = async () => {
@@ -92,15 +83,15 @@ export class WebBroker {
 
             this.wss.close((err) => {
                 if (err) {
-                    console.error('Ошибка при закрытии WebSocket сервера:', err);
+                    console.error('err', err);
                 } else {
-                    console.log('WebSocket сервер успешно закрыт.');
+                    console.log('closed');
                 }
             });
 
             this.wss = null;
         } else {
-            console.log('Попытка отключить WebSocket сервер, который уже не активен.');
+
         }
     };
 
